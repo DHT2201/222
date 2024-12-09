@@ -327,16 +327,17 @@
                 </tbody>
             </table>
             <div class="d-flex justify-content-between align-items-center mt-4" style="gap: 10px;">
-                <h5 style="margin: 0;">Tổng giá trị đơn hàng: 
+                <!-- <h5 style="margin: 0;">Tổng giá trị đơn hàng: 
                     <span class="fw-bold text-danger">
                         <?= number_format($totalOrderPrice, 0, ',', '.') ?> đồng
                     </span>
-                </h5>
+                </h5> -->
                 <a href="index.php?page=Order" class="btn btn-primary rounded-1 p-2 fs-7 btn-cart" 
-                style="margin-left: 0; padding: 5px 10px;">
+                style="margin-left: auto; padding: 5px 10px;">
                     Đặt Hàng
                 </a>
             </div>
+
 
 
         </div>

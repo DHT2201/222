@@ -36,11 +36,18 @@
                 <div class="col-11 col-md-7">
 
                 <form id="search-form" class="text-center" action="index.php" method="GET">
-                        <input type="hidden" name="page" value="product">
-                        
-                        <input type="text" class="form-control border-0 bg-transparent" placeholder="Tìm kiếm..." name="keyword" value="<?php echo isset($_SESSION['search_keyword']) ? $_SESSION['search_keyword']: ''; ?>">
-                     
+                    <input type="hidden" name="page" value="product">
+    
+                    <input 
+                        type="text" 
+                        class="form-control border-0 bg-transparent" 
+                        placeholder="Tìm kiếm..." 
+                        name="keyword" 
+                        value="<?php echo isset($_SESSION['search_keyword']) ? $_SESSION['search_keyword'] : ''; ?>" 
+                        required
+                    >
                 </form>
+
 
                 </div>
                 <div class="col-1">

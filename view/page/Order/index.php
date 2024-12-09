@@ -22,6 +22,7 @@ if (isset($_POST['btndh'])) {
     }
 
     // Thêm đơn hàng vào bảng `orders`
+    date_default_timezone_set('Asia/Ho_Chi_Minh');// đặt lại múi h 
     $orderDate = date('Y-m-d H:i:s');
     $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;  // Lấy user_id từ session
 
@@ -88,58 +89,103 @@ if ($totalProducts > 0) {
     $cartItems = $cartController->getProductofCartList();
 }
 ?>
+<?php
+// Kết nối tới cơ sở dữ liệu
+include_once("model/ConnectDatabase.php");
 
-    <div class="container d-flex justify-content-center align-items-center vh-100">
-        <div class="card p-4 shadow" style="width: 100%; max-width: 40%;">
-            <h2 class="text-center mb-4">Thông tin đặt Hàng </h2>
-            <form action="#" method="post" id="registerForm">
-            <table>
-                <thead>
-                    <tr class="">
-                        <th scope="col" class="text-center">STT</th>
-                        <th scope="col" class="text-center">Tên sản phẩm</th>
-                        <th scope="col">Giá</th>
-                        <th scope="col">Số lượng</th>
-                        <th scope="col" class="text-center">Thành tiền</th>
-                    </tr>
-                </thead>
-                <tbody>
-                                     <?php 
-                                        $totalOrderPrice = 0; 
-                                        $stt = 1; // Khởi tạo số thứ tự
-                                        foreach ($cartItems as $item): 
-                                            $productPrice = $item['price']; // Lấy giá sản phẩm từ giỏ hàng
-                                            $quantity = $item['quantity']; // Lấy số lượng từ giỏ hàng
-                                            $totalPrice = $productPrice * $quantity;
-                                            $totalOrderPrice += $productPrice * $quantity; // Tính tổng tiền
-                                    ?>
-                                  <tr>
-                                            <td class="text-center"><?= $stt++; ?></td>
-                                            <td class="text-center"><?= $item['product_name'] ?></td class="text-center">
-                                            <td><?= number_format($productPrice, 0, ',', '.') ?> đồng</td>
-                                            <td class="text-center"><?= $quantity; ?></td>
-                                            <td class="text-center">
-                                            <span id="total-price-<?= $item['product_id'] ?>">
-                                                <?= number_format($totalPrice, 0, ',', '.') ?> đồng
-                                                </span>
-                                            </td>
-                                     </tr>
-                                    <?php endforeach; ?>
-                </tbody>
-           
-            </table>
-            <h5 style="margin: 0;">Tổng giá trị đơn hàng: 
-                    <span class="fw-bold text-danger">
-                        <?= number_format($totalOrderPrice, 0, ',', '.') ?> đồng
-                    </span>
-            <button type="submit" class="btn btn-primary w-100 mb-3" name="btndh" id="btndh">Xác Nhận Đặt Hàng </button>
-            </form>
+$userId = $_SESSION['user_id']; // Lấy user_id từ session
 
-            <?php
-            //include_once('script.php');
-            ?>
-        </div>
+// Truy vấn thông tin người dùng
+$query = "SELECT user_name, number_phone, email, address 
+          FROM users 
+          WHERE user_id = ?";
+
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    $recipient = $result->fetch_assoc(); // Lưu thông tin người nhận
+} else {
+    $recipient = [
+        'user_name' => 'Chưa cập nhật',
+        'number_phone' => 'Chưa cập nhật',
+        'email' => 'Chưa cập nhật',
+        'address' => 'Chưa cập nhật'
+    ];
+}
+?>
+
+
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card p-4 shadow" style="width: 100%; max-width: 80%;">
+        <h2 class="text-center mb-4">Thông tin đặt Hàng</h2>
+        <form action="#" method="post" id="registerForm">
+            <div class="d-flex">
+                <!-- Thông tin người nhận -->
+                <div class="recipient-info me-4" style="width: 40%;">
+                    <h4>Thông tin người nhận</h4>
+                    <p><strong>Họ và tên:</strong><?= htmlspecialchars($recipient['user_name']) ?></p>
+                    <p><strong>Email:</strong> <?= htmlspecialchars($recipient['number_phone']) ?></p>
+                    <p><strong>Số điện thoại:</strong> <?= htmlspecialchars($recipient['email']) ?></p>
+                    <p><strong>Địa chỉ:</strong>
+                    <?= isset($user['address']) && $user['address'] ? htmlspecialchars($user['address']) : "Không có địa chỉ cụ thể"; ?>
+                    </p>
+                </div>
+
+                <!-- Bảng danh sách sản phẩm -->
+                <div style="width: 60%;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="text-center">STT</th>
+                                <th scope="col" class="text-center">Tên sản phẩm</th>
+                                <th scope="col">Giá</th>
+                                <th scope="col">Số lượng</th>
+                                <th scope="col" class="text-center">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php 
+                            $totalOrderPrice = 0; 
+                            $stt = 1; 
+                            foreach ($cartItems as $item): 
+                                $productPrice = $item['price'];
+                                $quantity = $item['quantity'];
+                                $totalPrice = $productPrice * $quantity;
+                                $totalOrderPrice += $productPrice * $quantity;
+                            ?>
+                            <tr>
+                                <td class="text-center"><?= $stt++; ?></td>
+                                <td class="text-center"><?= htmlspecialchars($item['product_name']) ?></td>
+                                <td><?= number_format($productPrice, 0, ',', '.') ?> đồng</td>
+                                <td class="text-center"><?= $quantity; ?></td>
+                                <td class="text-center">
+                                    <span id="total-price-<?= $item['product_id'] ?>">
+                                        <?= number_format($totalPrice, 0, ',', '.') ?> đồng
+                                    </span>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tổng giá trị đơn hàng -->
+            <h5 style="margin: 0;">Tổng giá trị đơn hàng:
+                <span class="fw-bold text-danger">
+                    <?= number_format($totalOrderPrice, 0, ',', '.') ?> đồng
+                </span>
+            </h5>
+
+            <!-- Nút xác nhận đặt hàng -->
+            <button type="submit" class="btn btn-primary w-100 mt-3" name="btndh" id="btndh">Xác Nhận Đặt Hàng</button>
+        </form>
     </div>
+</div>
+
     <script src="vendor/js/bootstrap.bundle.min.js"></script>
 </body>
 

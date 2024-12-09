@@ -205,7 +205,7 @@
                             <!-- Div riêng hiển thị thông tin từ khóa và số lượng sản phẩm -->
                             <div class="search-info" style="display: flex; align-items: center; gap: 10px;">
                                 <h2 style="margin: 0;">Từ khóa:</h2>
-                                <strong style="font-size: 1.5em;"><?php echo $safeKeyword; ?></strong>
+                                <strong style="font-size: 1.5em; color: black"><?php echo $safeKeyword; ?></strong>
                                 <p class="text-secondary fs-5" style="margin: 0;">
                                     Có (<strong style="font-size: 1.5em;color: red;"><?php echo $count; ?></strong>)sản phẩm được tìm thấy.
                                 </p>
